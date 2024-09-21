@@ -1,20 +1,19 @@
 use std::env;
-use std::process::Command;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
+use crate::config::Config;
+use crate::metrics::Gauge;
+use crate::speedtest::run_speedtest;
 use axum::response::IntoResponse;
-use axum::Router;
 use axum::routing::get;
+use axum::Router;
 use clap::Parser;
 use dotenv::dotenv;
 use log::{debug, error, info};
 use prometheus::{Encoder, TextEncoder};
 use tokio::task::spawn_blocking;
 use tokio::time::interval;
-use crate::config::Config;
-use crate::metrics::{Gauge, register_gauge};
-use crate::speedtest::SpeedtestResult;
 
 mod config;
 mod speedtest;
@@ -23,12 +22,12 @@ mod metrics;
 type SharedState = Arc<Mutex<AppState>>;
 
 struct AppState {
-    speedtest_download_bytes_gauge: Gauge,
-    speedtest_download_bandwidth_bytes_gauge: Gauge,
-    speedtest_download_duration_seconds_gauge: Gauge,
-    speedtest_upload_bytes_gauge: Gauge,
-    speedtest_upload_bandwidth_bytes_gauge: Gauge,
-    speedtest_upload_duration_seconds_gauge: Gauge,
+    download_bytes_gauge: Gauge,
+    download_bandwidth_bytes_gauge: Gauge,
+    download_elapsed_seconds_gauge: Gauge,
+    upload_bytes_gauge: Gauge,
+    upload_bandwidth_bytes_gauge: Gauge,
+    upload_elapsed_seconds_gauge: Gauge,
 }
 
 
@@ -49,13 +48,13 @@ async fn main() {
 
     let shared_state = SharedState::new(Mutex::new(
         AppState {
-            speedtest_download_bytes_gauge: register_gauge("speedtest_download_bytes", "Number of bytes downloaded during speedtest"),
-            speedtest_download_bandwidth_bytes_gauge: register_gauge("speedtest_download_bandwidth_bytes", "Speedtest download bandwidth in bytes/s"),
-            speedtest_download_duration_seconds_gauge: register_gauge("speedtest_download_duration_seconds", "Speedtest download duration in seconds"),
+            download_bytes_gauge: Gauge::register("speedtest_download_bytes", "Number of bytes downloaded during speedtest"),
+            download_bandwidth_bytes_gauge: Gauge::register("speedtest_download_bandwidth_bytes", "Speedtest download bandwidth in bytes per second"),
+            download_elapsed_seconds_gauge: Gauge::register("speedtest_download_elapsed_seconds", "Speedtest download elapsed time in seconds"),
 
-            speedtest_upload_bytes_gauge: register_gauge("speedtest_upload_bytes", "Number of bytes uploaded during speedtest"),
-            speedtest_upload_bandwidth_bytes_gauge: register_gauge("speedtest_upload_bandwidth_bytes", "Speedtest upload bandwidth in bytes/s"),
-            speedtest_upload_duration_seconds_gauge: register_gauge("speedtest_upload_duration_seconds", "Speedtest upload duration in seconds"),
+            upload_bytes_gauge: Gauge::register("speedtest_upload_bytes", "Number of bytes uploaded during speedtest"),
+            upload_bandwidth_bytes_gauge: Gauge::register("speedtest_upload_bandwidth_bytes", "Speedtest upload bandwidth in bytes per second"),
+            upload_elapsed_seconds_gauge: Gauge::register("speedtest_upload_elapsed_seconds", "Speedtest upload elapsed time in seconds"),
         }
     ));
 
@@ -75,38 +74,26 @@ async fn main() {
         .await.unwrap();
 }
 
-async fn speedtest_task(config: Config, shared_state: SharedState) { // -> impl Future<Output=_> + Sized {
+async fn speedtest_task(config: Config, shared_state: SharedState) {
     let mut interval = interval(Duration::from_secs(config.test_interval_minutes * 60));
     loop {
         interval.tick().await;
-        if let Ok(Ok(result)) = spawn_blocking(run_speedtest).await {
-            let app_state = shared_state.lock().unwrap();
-            app_state.speedtest_download_bytes_gauge.set(result.download.bytes, &result);
-            app_state.speedtest_download_bandwidth_bytes_gauge.set(result.download.bandwidth, &result);
-            app_state.speedtest_download_duration_seconds_gauge.set(result.download.elapsed, &result);
 
-            app_state.speedtest_upload_bytes_gauge.set(result.upload.bytes, &result);
-            app_state.speedtest_upload_bandwidth_bytes_gauge.set(result.upload.bandwidth, &result);
-            app_state.speedtest_upload_duration_seconds_gauge.set(result.upload.elapsed, &result);
-        } else if let Err(e) = spawn_blocking(run_speedtest).await {
-            error!("Failed to run speedtest: {}", e);
+        match spawn_blocking(run_speedtest).await.expect("Failed to spawn task") {
+            Ok(result) => {
+                let app_state = shared_state.lock().unwrap();
+                app_state.download_bytes_gauge.set(result.download.bytes, &result);
+                app_state.download_bandwidth_bytes_gauge.set(result.download.bandwidth, &result);
+                app_state.download_elapsed_seconds_gauge.set(result.download.elapsed, &result);
+
+                app_state.upload_bytes_gauge.set(result.upload.bytes, &result);
+                app_state.upload_bandwidth_bytes_gauge.set(result.upload.bandwidth, &result);
+                app_state.upload_elapsed_seconds_gauge.set(result.upload.elapsed, &result);
+            }
+            Err(e) => {
+                error!("Failed to run speedtest: {}", e);
+            }
         }
-    }
-}
-
-fn run_speedtest() -> Result<SpeedtestResult, std::io::Error> {
-    debug!("Running speedtest");
-    let output = Command::new("speedtest")
-        .arg("--format=json")
-        .arg("--accept-license")
-        .arg("--accept-gdpr")
-        .output()?;
-
-    if output.status.success() {
-        let output_str = String::from_utf8_lossy(&output.stdout);
-        SpeedtestResult::from_json(&output_str).map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
-    } else {
-        Err(std::io::Error::new(std::io::ErrorKind::Other, output.status.to_string()))
     }
 }
 
