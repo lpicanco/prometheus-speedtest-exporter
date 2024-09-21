@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use crate::config::Config;
-use crate::metrics::Gauge;
+use crate::metrics::{register, register_int, FloatGauge, IntGauge};
 use crate::speedtest::run_speedtest;
 use axum::response::IntoResponse;
 use axum::routing::get;
@@ -22,12 +22,12 @@ mod metrics;
 type SharedState = Arc<Mutex<AppState>>;
 
 struct AppState {
-    download_bytes_gauge: Gauge,
-    download_bandwidth_bytes_gauge: Gauge,
-    download_elapsed_seconds_gauge: Gauge,
-    upload_bytes_gauge: Gauge,
-    upload_bandwidth_bytes_gauge: Gauge,
-    upload_elapsed_seconds_gauge: Gauge,
+    download_bytes_gauge: IntGauge,
+    download_bandwidth_bytes_gauge: IntGauge,
+    download_elapsed_seconds_gauge: FloatGauge,
+    upload_bytes_gauge: IntGauge,
+    upload_bandwidth_bytes_gauge: IntGauge,
+    upload_elapsed_seconds_gauge: FloatGauge,
 }
 
 
@@ -48,13 +48,13 @@ async fn main() {
 
     let shared_state = SharedState::new(Mutex::new(
         AppState {
-            download_bytes_gauge: Gauge::register("speedtest_download_bytes", "Number of bytes downloaded during speedtest"),
-            download_bandwidth_bytes_gauge: Gauge::register("speedtest_download_bandwidth_bytes", "Speedtest download bandwidth in bytes per second"),
-            download_elapsed_seconds_gauge: Gauge::register("speedtest_download_elapsed_seconds", "Speedtest download elapsed time in seconds"),
+            download_bytes_gauge: register_int("speedtest_download_bytes", "Number of bytes downloaded during speedtest"),
+            download_bandwidth_bytes_gauge: register_int("speedtest_download_bandwidth_bytes", "Speedtest download bandwidth in bytes per second"),
+            download_elapsed_seconds_gauge: register("speedtest_download_elapsed_seconds", "Speedtest download elapsed time in seconds"),
 
-            upload_bytes_gauge: Gauge::register("speedtest_upload_bytes", "Number of bytes uploaded during speedtest"),
-            upload_bandwidth_bytes_gauge: Gauge::register("speedtest_upload_bandwidth_bytes", "Speedtest upload bandwidth in bytes per second"),
-            upload_elapsed_seconds_gauge: Gauge::register("speedtest_upload_elapsed_seconds", "Speedtest upload elapsed time in seconds"),
+            upload_bytes_gauge: register_int("speedtest_upload_bytes", "Number of bytes uploaded during speedtest"),
+            upload_bandwidth_bytes_gauge: register_int("speedtest_upload_bandwidth_bytes", "Speedtest upload bandwidth in bytes per second"),
+            upload_elapsed_seconds_gauge: register("speedtest_upload_elapsed_seconds", "Speedtest upload elapsed time in seconds"),
         }
     ));
 
@@ -84,11 +84,11 @@ async fn speedtest_task(config: Config, shared_state: SharedState) {
                 let app_state = shared_state.lock().unwrap();
                 app_state.download_bytes_gauge.set(result.download.bytes, &result);
                 app_state.download_bandwidth_bytes_gauge.set(result.download.bandwidth, &result);
-                app_state.download_elapsed_seconds_gauge.set(result.download.elapsed, &result);
+                app_state.download_elapsed_seconds_gauge.set(result.download.elapsed_seconds(), &result);
 
                 app_state.upload_bytes_gauge.set(result.upload.bytes, &result);
                 app_state.upload_bandwidth_bytes_gauge.set(result.upload.bandwidth, &result);
-                app_state.upload_elapsed_seconds_gauge.set(result.upload.elapsed, &result);
+                app_state.upload_elapsed_seconds_gauge.set(result.upload.elapsed_seconds(), &result);
             }
             Err(e) => {
                 error!("Failed to run speedtest: {}", e);

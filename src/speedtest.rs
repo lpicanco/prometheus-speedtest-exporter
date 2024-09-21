@@ -26,6 +26,12 @@ pub struct TestResult {
     latency: LatencyResult,
 }
 
+impl TestResult {
+    pub fn elapsed_seconds(&self) -> f64 {
+        self.elapsed as f64 / 1000.0
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Server {
     pub id: u64,
