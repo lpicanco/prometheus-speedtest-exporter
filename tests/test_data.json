@@ -1,0 +1,55 @@
+{
+  "type": "result",
+  "timestamp": "2024-09-21T14:48:34Z",
+  "ping": {
+    "jitter": 0.262,
+    "latency": 12.280,
+    "low": 12.192,
+    "high": 12.837
+  },
+  "download": {
+    "bandwidth": 39924051,
+    "bytes": 306775755,
+    "elapsed": 7600,
+    "latency": {
+      "iqm": 28.108,
+      "low": 16.281,
+      "high": 42.011,
+      "jitter": 5.441
+    }
+  },
+  "upload": {
+    "bandwidth": 13008272,
+    "bytes": 134520546,
+    "elapsed": 10921,
+    "latency": {
+      "iqm": 19.651,
+      "low": 11.702,
+      "high": 471.022,
+      "jitter": 18.081
+    }
+  },
+  "packetLoss": 0,
+  "isp": "Test ISP",
+  "interface": {
+    "internalIp": "10.0.10.2",
+    "name": "en0",
+    "macAddr": "AA:BB:22:33:44:55",
+    "isVpn": false,
+    "externalIp": "1.2.3.172"
+  },
+  "server": {
+    "id": 52533,
+    "host": "speedtest-lis.lan",
+    "port": 8080,
+    "name": "Virtual Machines",
+    "location": "Zion",
+    "country": "Matrix",
+    "ip": "33.11.22.101"
+  },
+  "result": {
+    "id": "8dfa2bdc-d6ea-4ac0-b041-5d0dc91b6b7c",
+    "url": "https://www.speedtest.net/result/c/8dfa2bdc-d6ea-4ac0-b041-5d0dc91b6b7c",
+    "persisted": true
+  }
+}
