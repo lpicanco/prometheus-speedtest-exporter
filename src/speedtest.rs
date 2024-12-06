@@ -45,6 +45,18 @@ impl TestResult {
     pub fn elapsed_seconds(&self) -> f64 {
         self.elapsed as f64 / 1000.0
     }
+
+    pub fn latency_iqm_seconds(&self) -> f64 {
+        self.latency.iqm / 1000.0
+    }
+
+    pub fn latency_low_seconds(&self) -> f64 {
+        self.latency.low / 1000.0
+    }
+
+    pub fn latency_high_seconds(&self) -> f64 {
+        self.latency.high / 1000.0
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -131,5 +143,24 @@ mod tests {
         assert_eq!(speedtest_result.upload.bandwidth, 13008272);
         assert_eq!(speedtest_result.server.name, "Virtual Machines");
         assert_eq!(speedtest_result.isp, "Test ISP");
+    }
+
+    #[test]
+    fn test_latency_conversions() {
+        let test_result = TestResult {
+            bandwidth: 1000,
+            bytes: 2000,
+            elapsed: 3200,
+            latency: LatencyResult {
+                iqm: 5.0,
+                low: 1.0,
+                high: 10.0,
+                jitter: 2.0,
+            },
+        };
+
+        assert_eq!(test_result.latency_iqm_seconds(), 0.005);
+        assert_eq!(test_result.latency_low_seconds(), 0.001);
+        assert_eq!(test_result.latency_high_seconds(), 0.01);
     }
 }
