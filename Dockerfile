@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM rust:1.81 as builder
+FROM rust:1.81-slim as builder
 RUN apt update && apt install -y curl gnupg2
 
 RUN curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash
@@ -29,7 +29,8 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /usr/bin/speedtest /usr/bin/speedtest
-COPY --from=builder /usr/src/app/target/release/prometheus-speedtest-exporter /usr/local/bin/prometheus-speedtest-exporter
+COPY --from=builder /usr/src/app/target/release/prometheus-speedtest-exporter /usr/local/bin
 
 EXPOSE 9516
-CMD ["/usr/local/bin/prometheus-speedtest-exporter"]
+
+ENTRYPOINT ["prometheus-speedtest-exporter"]
