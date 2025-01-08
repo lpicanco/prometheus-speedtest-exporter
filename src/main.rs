@@ -5,7 +5,11 @@ use std::time::Duration;
 use crate::config::Config;
 use crate::metrics::{register, register_int, FloatGauge, IntGauge};
 use crate::speedtest::run_speedtest;
-use axum::response::IntoResponse;
+use axum::{
+    response::{IntoResponse, Response},
+    http::{StatusCode, header},
+    body::Body,
+};
 use axum::routing::get;
 use axum::Router;
 use clap::Parser;
@@ -137,7 +141,11 @@ async fn handle_metrics() -> impl IntoResponse {
     let metric_families = prometheus::gather();
     let mut buffer = Vec::new();
     encoder.encode(&metric_families, &mut buffer).unwrap();
-    (axum::http::StatusCode::OK, buffer)
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "text/plain")
+        .body(Body::from(buffer))
+        .unwrap()
 }
 
 #[cfg(test)]
