@@ -1,0 +1,67 @@
+site_name: Prometheus Speedtest Exporter
+site_description: A Prometheus exporter that runs speedtest.net measurements and exports the results as metrics
+site_url: https://lpicanco.github.io/prometheus-speedtest-exporter
+repo_url: https://github.com/lpicanco/prometheus-speedtest-exporter
+repo_name: lpicanco/prometheus-speedtest-exporter
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+
+nav:
+  - Home: index.md
+  - Quick Start: quick-start.md
+  - Configuration:
+    - Installation: installation.md
+    - Settings: configuration.md
+  - Metrics: metrics.md
+  - Dashboard: dashboard.md
+  - Development: development.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - attr_list
+  - md_in_html
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+
+plugins:
+  - search
+  - social
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/lpicanco/prometheus-speedtest-exporter
+    - icon: fontawesome/brands/docker
+      link: https://github.com/lpicanco/prometheus-speedtest-exporter/pkgs/container/prometheus-speedtest-exporter 

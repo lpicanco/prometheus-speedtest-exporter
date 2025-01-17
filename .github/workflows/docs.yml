@@ -1,0 +1,44 @@
+name: Documentation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+
+permissions:
+  contents: write
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          
+      - name: Install dependencies
+        run: |
+          pip install mkdocs-material pillow cairosvg
+          
+      - name: Build and deploy documentation
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          cd docs
+          mkdocs gh-deploy --force
+          
+      - name: Build documentation (PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          cd docs
+          mkdocs build 
