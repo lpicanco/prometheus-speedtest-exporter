@@ -22,7 +22,7 @@ A Prometheus exporter that runs speedtest.net measurements and exports the resul
 - Docker support
 - Minimal resource footprint (<1MiB RAM usage)
 
-![Memory Usage](memory_usage.png)
+![Memory Usage](https://raw.githubusercontent.com/lpicanco/prometheus-speedtest-exporter/refs/heads/main/docs/memory_usage.png)
 *Container memory usage example*
 
 ## Quick Start
@@ -49,7 +49,7 @@ Then access Grafana at http://localhost:3000 (admin/admin) and you'll find:
 
 A pre-configured Grafana dashboard is available to visualize your internet speed metrics:
 
-[![Grafana Dashboard](grafana_dashboard.png)](https://grafana.com/grafana/dashboards/22651-prometheus-speedtest-exporter/)
+[![Grafana Dashboard](https://raw.githubusercontent.com/lpicanco/prometheus-speedtest-exporter/refs/heads/main/docs/grafana_dashboard.png)](https://grafana.com/grafana/dashboards/22651-prometheus-speedtest-exporter/)
 
 You can import this dashboard in two ways:
 1. Using the Grafana.com dashboard ID: `22651`

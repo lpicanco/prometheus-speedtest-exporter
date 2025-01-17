@@ -34,6 +34,15 @@ theme:
   icon:
     repo: fontawesome/brands/github
 
+# Remove footer text
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/lpicanco/prometheus-speedtest-exporter
+    - icon: fontawesome/brands/docker
+      link: https://github.com/lpicanco/prometheus-speedtest-exporter/pkgs/container/prometheus-speedtest-exporter
+
 nav:
   - Home: index.md
   - Quick Start: quick-start.md
@@ -60,11 +69,4 @@ markdown_extensions:
 
 plugins:
   - search
-  - social
-
-extra:
-  social:
-    - icon: fontawesome/brands/github
-      link: https://github.com/lpicanco/prometheus-speedtest-exporter
-    - icon: fontawesome/brands/docker
-      link: https://github.com/lpicanco/prometheus-speedtest-exporter/pkgs/container/prometheus-speedtest-exporter 
+  - social 

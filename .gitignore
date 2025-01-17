@@ -19,3 +19,6 @@ target/
 
 /target
 .DS_Store
+.venv
+site
+docs/.cache
