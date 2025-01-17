@@ -28,6 +28,16 @@ cargo clippy
 
 The documentation is built using MkDocs with the Material theme and hosted on GitHub Pages.
 
+### Directory Structure
+```
+docs/
+├── mkdocs.yml          # MkDocs configuration
+└── src/                # Documentation source files
+    ├── index.md        # Home page
+    ├── quick-start.md
+    └── ...
+```
+
 ### GitHub Pages Setup
 
 1. Go to your repository's Settings
@@ -64,7 +74,7 @@ cd docs
 mkdocs build
 ```
 
-The built site will be in the `site` directory.
+The built site will be in the `site` directory at the root of the project.
 
 ## Docker Build
 
