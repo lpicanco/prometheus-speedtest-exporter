@@ -33,12 +33,10 @@ jobs:
           
       - name: Build and deploy documentation
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        run: |
-          cd docs
-          mkdocs gh-deploy --force
+        working-directory: docs
+        run: mkdocs gh-deploy --force
           
       - name: Build documentation (PR)
         if: github.event_name == 'pull_request'
-        run: |
-          cd docs
-          mkdocs build 
+        working-directory: docs
+        run: mkdocs build 

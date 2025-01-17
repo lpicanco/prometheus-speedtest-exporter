@@ -4,6 +4,8 @@ site_url: https://lpicanco.github.io/prometheus-speedtest-exporter
 repo_url: https://github.com/lpicanco/prometheus-speedtest-exporter
 repo_name: lpicanco/prometheus-speedtest-exporter
 
+docs_dir: .
+
 theme:
   name: material
   features:
